@@ -1,0 +1,24 @@
+<modification>
+	<name>Instant Product Editor (IPE)</name>
+	<version>2.3-1.6</version>
+	<author>NIL</author>
+<!-- Action 1 -->		
+	<file path="admin/view/template/common/header.tpl">
+		<operation>
+			<search>
+				<![CDATA[
+</head>
+				]]>
+			</search>
+			<add position="before">
+				<![CDATA[
+<!-- JS added for Instant Product Editor -->
+<script type="text/javascript" src="view/javascript/product_extra.js"></script>
+<?php if(isset($_GET['iframed']) && $_GET['iframed'] == 1){?> 
+	<link rel="stylesheet" type="text/css" href="view/stylesheet/product_extra.css" /> 
+<?php }?>
+				]]>
+			</add>
+		</operation>
+	</file>
+</modification>

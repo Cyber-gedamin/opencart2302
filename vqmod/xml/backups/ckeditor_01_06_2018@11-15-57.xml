@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>CKEditor 2+ (4.7.1)</name>
+	<version>1.4.0</version>
+	<author>Dot</author>
+    <code>ckeditor_full_package_sk</code>
+
+    <file path="admin/view/template/common/header.tpl">
+        <operation>
+            <search><![CDATA[<title><?php echo $title; ?></title>]]></search>
+            <add position="before"><![CDATA[<script>
+  var ck_settings = {
+    language : '<?php echo $lang;?>',
+    skin : '<?php echo $ckeditorfull_skin;?>',
+    height : '<?php echo $ckeditorfull_height;?>',
+    apikey : '<?php echo $ckeditorfull_apikey;?>',
+    acf : '<?php echo $ckeditorfull_acf;?>',
+    base : '<?php echo $base;?>'
+  };
+</script>]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/common/header.php">
+        <operation>
+            <search><![CDATA[$data['description'] = $this->document->getDescription();]]></search>
+            <add position="before"><![CDATA[		$data['ckeditorfull_skin'] = $this->config->get('ckeditorfull_skin');
+		$data['ckeditorfull_height'] = $this->config->get('ckeditorfull_height');
+		$data['ckeditorfull_apikey'] = $this->config->get('ckeditorfull_apikey');
+		$data['ckeditorfull_acf'] = $this->config->get('ckeditorfull_acf');]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/common/filemanager.php">
+        <operation>
+            <search><![CDATA[// Return the thumbnail for the file manager to show a thumbnail]]></search>
+            <add position="before"><![CDATA[		// Return the CKEditor callback function
+		if (isset($this->request->get['CKEditorFuncNum'])) {
+			$data['CKEditorFuncNum'] = $this->request->get['CKEditorFuncNum'];
+		} else {
+			$data['CKEditorFuncNum'] = '';
+		}]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}]]></search>
+            <add position="replace"><![CDATA[{jpg,jpeg,png,gif,pdf,mp4,webm,ogv,zip,xls,xlsx,doc,docx,ppt,pptx,odt,ods,odp,JPG,JPEG,PNG,GIF,PDF,MP4,WEBM,OGV,ZIP,XLS,DOC,PPT,ODT,ODS,ODP}]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$this->model_tool_image->resize(utf8_substr($image, utf8_strlen(DIR_IMAGE)), 100, 100)]]></search>
+            <add position="replace"><![CDATA[$thumb]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[				$data['images'][] = array(]]></search>
+            <add position="before"><![CDATA[				$extraextensions = array('xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'zip', 'pdf', 'mp4', 'webm', 'ogv');
+				$extension = strtolower(pathinfo(utf8_substr($image, utf8_strlen(DIR_IMAGE)), PATHINFO_EXTENSION));
+				if (in_array($extension, $extraextensions)) {
+					$thumb = $this->model_tool_image->resize($extension . "icon.png", 100, 100);
+				} else {
+					$thumb = $this->model_tool_image->resize(utf8_substr($image, utf8_strlen(DIR_IMAGE)), 100, 100);
+				}]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA['png']]></search>
+            <add position="after"><![CDATA[,'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'zip', 'pdf', 'mp4', 'webm', 'ogv']]></add>
+        </operation>
+        <operation>
+            <search><![CDATA['image/gif']]></search>
+            <add position="after"><![CDATA[,
+						'application/vnd.ms-excel',
+						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+						'application/msword',
+						'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+						'application/vnd.ms-powerpoint',
+						'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+						'application/vnd.oasis.opendocument.text',
+						'application/vnd.oasis.opendocument.spreadsheet',
+						'application/vnd.oasis.opendocument.presentation',
+						'application/zip',
+						'application/pdf',
+						'video/mp4',
+						'video/webm',
+						'video/ogg']]></add>
+        </operation>
+    </file>
+    <file path="admin/view/template/common/filemanager.tpl">
+            <operation>
+            <search index="0"><![CDATA[<script type="text/javascript"><!--]]></search>
+            <add position="after"><![CDATA[
+<?php if ($CKEditorFuncNum != '') { ?>
+CKEditorFuncNum='<?php echo $CKEditorFuncNum; ?>';
+<?php }?>
+
+$('#modal-image').on('hidden.bs.modal', function () {
+	if (typeof CKEditorFuncNum === 'undefined') {
+	} else {
+		delete CKEditorFuncNum;
+		$('#modal-image').remove();
+	}
+});
+]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$('a.thumbnail').on('click', function(e) {]]></search>
+            <add position="after" offset="2"><![CDATA[
+	if (typeof CKEditorFuncNum === 'undefined') {
+	} else {
+		window.CKEDITOR.tools.callFunction(CKEditorFuncNum,$(this).attr('href'));
+		delete CKEditorFuncNum;
+		$('#modal-image').modal('hide');
+		$('#modal-image').remove();
+		return;
+	}]]></add>
+        </operation>
+    </file>
+</modification>

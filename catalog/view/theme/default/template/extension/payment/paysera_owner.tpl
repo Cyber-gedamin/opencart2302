@@ -1,0 +1,1 @@
+<meta name="verify-paysera" content="<?php echo $paysera_code; ?>">
